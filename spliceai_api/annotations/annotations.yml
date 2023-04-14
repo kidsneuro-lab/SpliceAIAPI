@@ -1,0 +1,21 @@
+---
+grch38:
+  label: GRCh38
+  assembly: grch38
+  assembly_igv: hg38
+  fasta: GRCH38_FASTA
+grch38_custom:
+  label: GRCh38 (Ensembl 104 / Gencode 38)
+  assembly: grch38
+  assembly_igv: hg38
+  fasta: GRCH38_FASTA
+grch37:
+  label: GRCh37
+  assembly: grch37
+  assembly_igv: hg19
+  fasta: GRCH37_FASTA
+grch37_custom:
+  label: GRCh37 (Ensembl 75 / Gencode 19)
+  assembly: grch37
+  assembly_igv: hg19
+  fasta: GRCH37_FASTA

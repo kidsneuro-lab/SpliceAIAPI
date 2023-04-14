@@ -1,0 +1,18 @@
+{
+    "python.pythonPath": "/Users/himanshujoshi/.pyenv/versions/SpliceAILookup/bin/python",
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "editor.codeActionsOnSave": [
+      "source.fixAll.eslint"
+    ],
+    "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[vue]": {
+      "editor.defaultFormatter": "octref.vetur"
+    },
+    "python.testing.pytestArgs": [
+      "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

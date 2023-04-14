@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Python: FastAPI",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "spliceai_api.app:app",
+                "--host", "0.0.0.0",
+                "--reload",
+                "--port", "5001"
+            ],
+            "jinja": false,
+            "justMyCode": true,
+            "env": {
+                "GRCH37_FASTA": "/Users/himanshujoshi/Projects/hg_ref/b37/human_g1k_v37.fasta",
+                "GRCH38_FASTA": "/Users/himanshujoshi/Projects/hg_ref/hg38_ref/Homo_sapiens_assembly38.fasta",
+                "ENSEMBL_TIMEOUT": "60",
+                "ALLOW_ALL_ORIGIN": "true"
+            }
+        }
+    ]
+}
