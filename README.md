@@ -6,6 +6,20 @@ API to obtain SpliceAI raw scores.
 * Clone the repository
 * Modify .env file to indicate where the hg19 and hg38 fasta files are stored
 
+### Environment variables and file locations
+
+```
+GRCH37_FASTA=/hg_ref/<hg19/GRCh37 fasta>
+GRCH38_FASTA=/hg_ref/<hg38/GRCh38 fasta>
+ENSEMBL_TIMEOUT=5 # Timeout in seconds for Ensembl REST API services (seconds)
+```
+
+
+| Files to download | Environment variable |
+|-------------------|----------------------|
+| https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta<br>https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai | `GRCH37_FASTA=/hg_ref/Homo_sapiens_assembly19.fasta` |
+| https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta<br>https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai | `GRCH38_FASTA=/hg_ref/Homo_sapiens_assembly38.fasta` |
+
 ### Accessing frontend
 
 Note: Frontend can only be accessed when running within VSCode
