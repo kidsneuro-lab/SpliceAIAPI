@@ -1,6 +1,8 @@
+import traceback
 import os
 import re
 from importlib.resources import files
+import logging
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -12,8 +14,14 @@ from pydantic import BaseModel, Field
 from spliceai.utils import Annotator
 from spliceai_api.utils import score_custom_sequence, ensembl_get_genomic_coord, get_delta_scores, Record, validate_fasta, load_annotations
 
+# Determine the logging level based on an environment variable
+logging_level = logging.DEBUG if os.getenv("DEBUG") == "true" else logging.INFO
+
+# Configure logging
+logging.basicConfig(level=logging_level, format="%(asctime)s %(name)-12s %(funcName)-12s %(levelname)-8s %(message)s")
+
 app = FastAPI(title="SpliceAI API",
-              version="0.0.1")
+              version="SPLICEAI_API_VERSION")
 
 if os.getenv("ALLOW_ALL_ORIGIN"):
     app.add_middleware(
@@ -112,6 +120,7 @@ async def api_get_delta_scores(variant: Variant):
         ann = Annotator(os.getenv(annotations[variant.annotation]['fasta']), annotation_file)
         return get_delta_scores(record, ann, variant.distance, variant.mask)
     except Exception as e:
+        traceback.print_exc()
         raise DefaultException(status_code=500, detail=jsonable_encoder(
             {'summary':'Encountered error while calculating SpliceAI scores',
              'details':e.__doc__}))

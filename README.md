@@ -1,4 +1,4 @@
-# SpliceAILookup
+# SpliceAIAPI
 
 API to obtain SpliceAI raw scores.
 
@@ -14,35 +14,11 @@ GRCH38_FASTA=/hg_ref/<hg38/GRCh38 fasta>
 ENSEMBL_TIMEOUT=5 # Timeout in seconds for Ensembl REST API services (seconds)
 ```
 
-
 | Files to download | Environment variable |
 |-------------------|----------------------|
 | https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta<br>https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai | `GRCH37_FASTA=/hg_ref/Homo_sapiens_assembly19.fasta` |
 | https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta<br>https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai | `GRCH38_FASTA=/hg_ref/Homo_sapiens_assembly38.fasta` |
 
-### Accessing frontend
-
-Note: Frontend can only be accessed when running within VSCode
-
-## Installing virtualenvironment for development
-Requirements
-* Python 3.9
-
-```shell
-python -m virtualenv .venv_spliceaiapi
-. .venv_spliceaiapi/bin/activate
-pip3 install -U wheel setuptools pip
-pip3 install -r requirements_dev.txt
-```
-
-## Running tests
-
-```shell
-cd SpliceAIAPI
-pytest
-```
-
-## Building
 
 ### Optionally embedding resources
 The application requires `hg_ref` resources files. Embedding these at build time will produce a very large image and take significant time to build, but will be fully self-contained and suitable for production. This step may be skipped in favour of supplying these resources at runtime via a host volume

@@ -12,15 +12,17 @@ from pkg_resources import resource_filename
 from spliceai.utils import one_hot_encode, normalise_chrom
 import numpy as np
 
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Record:
     chrom: str = None
     pos: int = None
     ref: str = None
-    alts: list() = None
+    alts: list = None
 
 def load_annotations() -> dict:
+    logger.debug("Loading annotations")
     annotation_config = files("spliceai_api.annotations").joinpath("annotations.yml")
 
     with open(annotation_config, "r") as stream:
@@ -37,6 +39,7 @@ def validate_fasta(assemblies: list):
             raise SpliceAIAPIException("Genomic reference not found", f"FASTA file for {assembly}: {os.getenv(assembly)} not found")
  
 def score_custom_sequence(sequence: str) -> dict:
+    logger.debug(f"Scoring sequence: {sequence}")
     context = 10000
     paths = ('models/spliceai{}.h5'.format(x) for x in range(1, 6))
     models = [load_model(resource_filename('spliceai', x)) for x in paths]
@@ -49,8 +52,10 @@ def score_custom_sequence(sequence: str) -> dict:
     }
 
 def ensembl_get_genomic_coord(variant: str, assembly: str = 'grch38') -> dict:
+    logger.debug(f"Obtaining genomic position for variant: {variant}, assembly: {assembly}")
     server = 'https://grch37.rest.ensembl.org' if assembly=='grch37' else 'https://rest.ensembl.org'
     ext = f"/variant_recoder/human/{variant}?fields=None&vcf_string=1"
+    logger.debug(f"Ensembl URL: {server}{ext}")
 
     resp = requests.get(server+ext, headers={ "Content-Type" : "application/json"}, timeout=float(ENSEMBL_TIMEOUT))
     if not resp.ok:
