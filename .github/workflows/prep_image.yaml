@@ -17,7 +17,7 @@ jobs:
 
     - name: Download Reference Genome
       run: |
-        wget https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fasta -O Homo_sapiens_assembly38.fasta
+        wget https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta -O Homo_sapiens_assembly38.fasta
 
     - name: Compress the FASTA file with bgzip
       run: |
