@@ -1,0 +1,40 @@
+name: Process Reference Genome
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prepare-reference-genome:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y samtools tabix
+
+    - name: Download hg19 and hg38 Reference Genome
+      run: |
+        wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta -O Homo_sapiens_assembly38.fasta
+        wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta -O Homo_sapiens_assembly19.fasta
+
+    - name: Compress the hg19 and hg38 FASTA file with bgzip
+      run: |
+        bgzip Homo_sapiens_assembly38.fasta
+        bgzip Homo_sapiens_assembly19.fasta
+
+    - name: Index the hg19 and hg38 FASTA file with samtools
+      run: |
+        samtools faidx Homo_sapiens_assembly38.fasta.gz
+        samtools faidx Homo_sapiens_assembly19.fasta.gz
+
+    - name: Copy the hg19 and hg38 FASTA and its index to hg_ref folder
+      run: |
+        mkdir -p hg_ref
+        cp Homo_sapiens_assembly38.fasta.gz hg_ref/
+        cp Homo_sapiens_assembly38.fasta.gz.fai hg_ref/
+        cp Homo_sapiens_assembly19.fasta.gz hg_ref/
+        cp Homo_sapiens_assembly19.fasta.gz.fai hg_ref/
+
