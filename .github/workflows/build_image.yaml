@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  prepare-reference-genome:
+  prepare-docker-image:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository

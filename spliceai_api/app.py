@@ -63,6 +63,15 @@ class Variant(BaseModel):
     distance: int = Field(description="Maximum distance between the variant and gained/lost splice site (default: 50).", default=50, gt=49, lt=10001)
     mask: int = Field(description="Mask scores representing annotated acceptor/donor gain and unannotated acceptor/donor loss (default: 0).", default=0)
 
+@app.get("/health/alive")
+def get_alive():
+    return {"status": "alive"}
+
+
+@app.get("/health/ready")
+def get_ready():
+    return {"status": "ready"}
+
 @app.get("/get_annotations")
 async def api_get_annotations():
     return annotations
