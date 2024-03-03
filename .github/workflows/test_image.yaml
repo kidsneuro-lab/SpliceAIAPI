@@ -1,0 +1,32 @@
+name: Process Reference Genome
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prepare-reference-genome:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl
+
+    - name: Copy test FASTA files (chr21) to hg_ref folder for testing
+      run: |
+        ./copy_small_fasta.sh
+
+    - name: Build Docker Image
+      run: |
+        docker build -t spliceai_api .
+
+    - name: Run Docker Container
+      run: |
+        docker run -d --name spliceai_api -p 5001:5001 spliceai_api
+
+    - name: Test with Curl
+      run: |
+        curl --fail "http://127.0.0.1:5001/score_custom_seq/CGAGACCCAGAGGCGGCGGCTCTCGCCCCCCAGCTCGTCCGCCGCCTCCTCTTATAGCTTCTCTGGTGAGAGCCTCGCCTGTGGGGACAGCCTGGGACGCGGGGAGGATGGGGTCGCGAGGGTGTGGCAGGGGGGCCG"
