@@ -20,8 +20,4 @@ jobs:
         ./copy_small_fasta.sh
         
     - name: Run Tests
-      run: ./run-unit-system-test.sh
-
-    - name: Test with Curl
-      run: |
-        curl --fail "http://127.0.0.1:5001/score_custom_seq/CGAGACCCAGAGGCGGCGGCTCTCGCCCCCCAGCTCGTCCGCCGCCTCCTCTTATAGCTTCTCTGGTGAGAGCCTCGCCTGTGGGGACAGCCTGGGACGCGGGGAGGATGGGGTCGCGAGGGTGTGGCAGGGGGGCCG"
+      run: ./run-system-tests.sh

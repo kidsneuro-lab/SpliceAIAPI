@@ -1,3 +1,2 @@
 .env
-tests
-requirements_dev.txt
+tests/data

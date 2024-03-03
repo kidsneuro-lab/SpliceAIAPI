@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  system-tests:
+    image: system-tests
+    container_name: system-tests
+    environment:
+      - GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta.gz
+      - GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta.gz
+    build:
+      context: .
+      target: tests
+    ports:
+      - "5001:5001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5001/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: ["pytest", "-m", "system_tests"]

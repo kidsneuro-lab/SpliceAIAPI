@@ -1,24 +1,33 @@
-FROM python:3.10-slim
-COPY ./hg_ref /hg_ref
+#################################################################################
+# STAGE - BUILD
+#################################################################################
+FROM python:3.10-slim as build
 
-RUN apt-get update \
-  && apt-get install -y \
-  && rm -rf /var/lib/apt/lists/*
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE=1
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED=1
 
-COPY requirements.txt /
-
-RUN pip install --no-cache-dir -U pip \
-  && pip install --no-cache-dir -r /requirements.txt
-
-# Add a new user "nonrootuser" with user id 8877
-RUN useradd -u 8877 nonrootuser
-
-COPY . /app
 WORKDIR /app
+COPY requirements.txt .
+RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
+COPY . /app
 
-ENV GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta.gz
-ENV GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta.gz
+#################################################################################
+# STAGE - TESTS
+#################################################################################
+FROM build as tests
+RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirements-dev.txt
 
-EXPOSE 5001
+#################################################################################
+# STAGE - RUNTIME
+#################################################################################
+FROM python:3.10-slim AS runtime
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+COPY --from=build /app /app
+COPY --from=build /usr/local /usr/local
 
 CMD ["uvicorn", "spliceai_api.app:app", "--host", "0.0.0.0", "--port", "5001", "--root-path", "/spliceai/api/v1"]
