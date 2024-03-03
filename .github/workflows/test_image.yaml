@@ -18,10 +18,7 @@ jobs:
     - name: Copy test FASTA files (chr21) to hg_ref folder for testing
       run: |
         ./copy_small_fasta.sh
-
-     - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
+        
     - name: Run Tests
       run: ./run-unit-system-test.sh
 
