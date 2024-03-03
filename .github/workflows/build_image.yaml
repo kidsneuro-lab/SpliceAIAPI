@@ -2,10 +2,17 @@ name: Prepare Docker image
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   prepare-docker-image:
     runs-on: ubuntu-latest
+
+    environment:
+      name: dev
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
@@ -38,3 +45,28 @@ jobs:
         cp Homo_sapiens_assembly19.fasta.gz hg_ref/
         cp Homo_sapiens_assembly19.fasta.gz.fai hg_ref/
 
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images:  ${{ vars.DOCKERHUB_USERNAME }}/spliceaiapi
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha
+
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
