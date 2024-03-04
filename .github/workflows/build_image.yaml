@@ -29,8 +29,8 @@ jobs:
 
     - name: Compress the hg19 and hg38 FASTA file with bgzip
       run: |
-        bgzip Homo_sapiens_assembly38.fasta
-        bgzip Homo_sapiens_assembly19.fasta
+        bgzip -@ 4 Homo_sapiens_assembly38.fasta
+        bgzip -@ 4 Homo_sapiens_assembly19.fasta
 
     - name: Index the hg19 and hg38 FASTA file with samtools
       run: |
