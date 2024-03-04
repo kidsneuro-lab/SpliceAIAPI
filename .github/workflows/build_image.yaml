@@ -21,6 +21,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y samtools tabix
+        sudo pip install pyfaidx biopython # Install pyfaidx, biopython
 
     - name: Download hg19 and hg38 Reference Genome
       run: |
@@ -32,18 +33,18 @@ jobs:
         bgzip -@ 4 Homo_sapiens_assembly38.fasta
         bgzip -@ 4 Homo_sapiens_assembly19.fasta
 
-    - name: Index the hg19 and hg38 FASTA file with samtools
+    - name: Index the hg19 and hg38 FASTA file with faidx
       run: |
-        samtools faidx Homo_sapiens_assembly38.fasta.gz
-        samtools faidx Homo_sapiens_assembly19.fasta.gz
+        faidx -v Homo_sapiens_assembly38.fasta.gz
+        faidx -v Homo_sapiens_assembly19.fasta.gz
 
     - name: Copy the hg19 and hg38 FASTA and its index to hg_ref folder
       run: |
         mkdir -p hg_ref
-        cp Homo_sapiens_assembly38.fasta.gz hg_ref/
-        cp Homo_sapiens_assembly38.fasta.gz.fai hg_ref/
-        cp Homo_sapiens_assembly19.fasta.gz hg_ref/
-        cp Homo_sapiens_assembly19.fasta.gz.fai hg_ref/
+        mv Homo_sapiens_assembly38.fasta.gz hg_ref/
+        mv Homo_sapiens_assembly38.fasta.gz.fai hg_ref/
+        mv Homo_sapiens_assembly19.fasta.gz hg_ref/
+        mv Homo_sapiens_assembly19.fasta.gz.fai hg_ref/
 
     - name: Replace SPLICEAI_API_VERSION with Git Commit in spliceai_api/app.py
       run: |
