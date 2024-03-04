@@ -1,6 +1,6 @@
 # SpliceAIAPI
 
-API to obtain SpliceAI raw scores.
+API to obtain SpliceAI scores for a genetic variant or assess scores for a raw sequence.
 
 ## Using the image
 https://hub.docker.com/r/schnknc/spliceaiapi
@@ -9,7 +9,6 @@ https://hub.docker.com/r/schnknc/spliceaiapi
 docker pull schnknc/spliceaiapi:main
 ```
 
-
 ## Environment variables
 
 Note: 
@@ -17,29 +16,43 @@ Note:
 - Both the Fasta files are included in the base image (This does result in a large image)
 
 ```
-GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta.gz
-GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta.gz
+GRCH37_FASTA=/hg_ref/Homo_sapiens_assembly19.fasta.gz
+GRCH38_FASTA=/hg_ref/Homo_sapiens_assembly38.fasta.gz
 ENSEMBL_TIMEOUT=120 # Timeout in seconds for Ensembl REST API services (seconds)
 ```
 
 ## Running
 
+**IMPORTANT:** Packing the fasta files within the docker image was attempted. Storing them in an uncompressed state
+occupies a lot of space. However after compressing them (using `bgzip` and indexing using `pyfaidx`'s `faidx` command), CPU utilisation when retrieving the sequence was unusually high. Feel to submit a PR if you figure out a way to build a fully contained image.
+
+1. Download Human genome reference files.
+
 ```sh
-docker run --rm \
-  -e GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta.gz \
-  -e GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta.gz \
-  -e ENSEMBL_TIMEOUT=120 \
-  -p 5001:5001 \
-  schnknc/spliceaiapi:main
+wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta
+wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai
+wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta
+wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai
 ```
 
-API documentation can be viewed via http://127.0.0.1:5001/docs
+2. Move these files to `hg_ref` folder.
 
-# Examples
+3. Download `docker-compose-nginx.yml` to the folder where you want to start running this service.
 
-## Score custom sequence
+3. Download `nginx` folder. This contains a bare bones nginx configuration.
+
+4. Launch container. This will start up the container.
 ```sh
-curl "http://127.0.0.1:5001/score_custom_seq/GATGGGGTCGCGAGGGTGTGGCAGGGG" \
+docker compose -f docker-compose-nginx.yml up -d
+```
+
+API documentation can be viewed via http://127.0.0.1/spliceai/api/v1/docs
+
+## Examples
+
+### Score custom sequence
+```sh
+curl "http://127.0.0.1:5001/spliceai/api/v1/score_custom_seq/GATGGGGTCGCGAGGGTGTGGCAGGGG" \
      -H 'Accept: application/json'
 ```
 
@@ -70,9 +83,9 @@ curl "http://127.0.0.1:5001/score_custom_seq/GATGGGGTCGCGAGGGTGTGGCAGGGG" \
 }
 ```
 
-## Single variant
+### Single variant
 ```sh
-curl -X "POST" "http://127.0.0.1:5001/get_delta_scores/" \
+curl -X "POST" "http://127.0.0.1:5001/spliceai/api/v1/get_delta_scores/" \
      -H 'Content-Type: application/json' \
      -H 'Accept: application/json' \
      -d $'{
@@ -120,9 +133,9 @@ curl -X "POST" "http://127.0.0.1:5001/get_delta_scores/" \
 ]
 ```
 
-## Bulk variants
+### Bulk variants
 ```sh
-curl -X "POST" "http://127.0.0.1:5001/get_bulk_delta_scores/" \
+curl -X "POST" "http://127.0.0.1:5001/spliceai/api/v1/get_bulk_delta_scores/" \
      -H 'Content-Type: application/json' \
      -H 'Accept: application/json' \
      -d $'{
@@ -220,12 +233,3 @@ curl -X "POST" "http://127.0.0.1:5001/get_bulk_delta_scores/" \
   }
 ]
 ```
-
-# Appendix
-
-## Fasta files source
-    
-| Files to download | Environment variable |
-|-------------------|----------------------|
-| https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta<br>https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai | `GRCH37_FASTA=/hg_ref/Homo_sapiens_assembly19.fasta` |
-| https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta<br>https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai | `GRCH38_FASTA=/hg_ref/Homo_sapiens_assembly38.fasta` |
