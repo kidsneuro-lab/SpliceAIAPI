@@ -82,31 +82,32 @@ def get_delta_scores(record, ann, dist_var, mask):
     try:
         record.chrom, record.pos, record.ref, len(record.alts)
     except TypeError:
-        logging.warning('Skipping record (bad input): {}'.format(record))
-        return delta_scores
+        logging.error('Skipping record (bad input): {}'.format(record))
+        raise SpliceAIAPIException('Skipping record (bad input): {}'.format(record))
 
     (genes, strands, idxs) = ann.get_name_and_strand(record.chrom, record.pos)
     if len(idxs) == 0:
-        return delta_scores
+        logging.warning("No gene annotations found for given location")
+        raise SpliceAIAPIException('No gene annotations found for given location: {}'.format(record))
 
     chrom = normalise_chrom(record.chrom, list(ann.ref_fasta.keys())[0])
     try:
         seq = ann.ref_fasta[chrom][record.pos-wid//2-1:record.pos+wid//2].seq
     except (IndexError, ValueError):
         logging.warning('Skipping record (fasta issue): {}'.format(record))
-        return delta_scores
+        raise SpliceAIAPIException('Skipping record (fasta issue): {}'.format(record))
 
     if seq[wid//2:wid//2+len(record.ref)].upper() != record.ref:
         logging.warning('Skipping record (ref issue): {}'.format(record))
-        return delta_scores
+        raise SpliceAIAPIException('Skipping record (ref issue): {}'.format(record))
 
     if len(seq) != wid:
         logging.warning('Skipping record (near chromosome end): {}'.format(record))
-        return delta_scores
+        raise SpliceAIAPIException('Skipping record (near chromosome end): {}'.format(record))
 
     if len(record.ref) > 2*dist_var:
         logging.warning('Skipping record (ref too long): {}'.format(record))
-        return delta_scores
+        raise SpliceAIAPIException('Skipping record (ref too long): {}'.format(record))
 
     spliceai_stats = []
 
