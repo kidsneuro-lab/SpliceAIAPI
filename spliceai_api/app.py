@@ -42,7 +42,7 @@ else:
 annotations = load_annotations()
 validate_fasta(assemblies=set([annotations[annotation]['fasta'] for annotation in annotations.keys()]))
 
-dna_pattern = re.compile("^[ATCG]+$")
+dna_pattern = re.compile("^[ATCGN]+$")
 
 class DefaultException(Exception):
     def __init__(self, status_code: int, detail: str):
