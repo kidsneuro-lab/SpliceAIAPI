@@ -17,8 +17,8 @@ Note:
 - Both the Fasta files are included in the base image (This does result in a large image)
 
 ```
-GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta.gz
-GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta.gz
+GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta
+GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta
 ENSEMBL_TIMEOUT=120 # Timeout in seconds for Ensembl REST API services (seconds)
 ```
 
@@ -26,8 +26,8 @@ ENSEMBL_TIMEOUT=120 # Timeout in seconds for Ensembl REST API services (seconds)
 
 ```sh
 docker run --rm \
-  -e GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta.gz \
-  -e GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta.gz \
+  -e GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta \
+  -e GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta \
   -e ENSEMBL_TIMEOUT=120 \
   -p 5001:5001 \
   schnknc/spliceaiapi:main

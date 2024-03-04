@@ -5,8 +5,8 @@ services:
     build:
       context: .
     environment:
-      GRCH37_FASTA: "/app/hg_ref/Homo_sapiens_assembly19.fasta.gz"
-      GRCH38_FASTA: "/app/hg_ref/Homo_sapiens_assembly38.fasta.gz"
+      GRCH37_FASTA: "/app/hg_ref/Homo_sapiens_assembly19.fasta"
+      GRCH38_FASTA: "/app/hg_ref/Homo_sapiens_assembly38.fasta"
       ENSEMBL_TIMEOUT: "120"
     ports:
       - "5001:5001"

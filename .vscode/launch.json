@@ -15,10 +15,8 @@
             "jinja": false,
             "justMyCode": true,
             "env": {
-                // "GRCH37_FASTA": "${workspaceFolder}/tests/data/chr21_grch37.fa.gz",
-                // "GRCH38_FASTA": "${workspaceFolder}/tests/data/chr21_grch38.fa.gz",
-                "GRCH37_FASTA": "${workspaceFolder}/hg_ref/Homo_sapiens_assembly19.fasta.gz",
-                "GRCH38_FASTA": "${workspaceFolder}/hg_ref/Homo_sapiens_assembly38.fasta.gz",
+                "GRCH37_FASTA": "${workspaceFolder}/tests/data/chr21_grch37.fa",
+                "GRCH38_FASTA": "${workspaceFolder}/tests/data/chr21_grch38.fa",
                 "ENSEMBL_TIMEOUT": "60",
                 "ALLOW_ALL_ORIGIN": "true",
                 "DEBUG": "true"
