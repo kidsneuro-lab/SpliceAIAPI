@@ -16,39 +16,10 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-
-    - name: Install Tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y samtools tabix
-        sudo pip install pyfaidx biopython # Install pyfaidx, biopython
-
-    - name: Download hg19 and hg38 Reference Genome
-      run: |
-        wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta -O Homo_sapiens_assembly38.fasta
-        wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta -O Homo_sapiens_assembly19.fasta
-
-    - name: Compress the hg19 and hg38 FASTA file with bgzip
-      run: |
-        bgzip -@ 4 Homo_sapiens_assembly38.fasta
-        bgzip -@ 4 Homo_sapiens_assembly19.fasta
-
-    - name: Index the hg19 and hg38 FASTA file with faidx
-      run: |
-        faidx -v Homo_sapiens_assembly38.fasta.gz
-        faidx -v Homo_sapiens_assembly19.fasta.gz
-
-    - name: Copy the hg19 and hg38 FASTA and its index to hg_ref folder
-      run: |
-        mkdir -p hg_ref
-        mv Homo_sapiens_assembly38.fasta.gz hg_ref/
-        mv Homo_sapiens_assembly38.fasta.gz.fai hg_ref/
-        mv Homo_sapiens_assembly19.fasta.gz hg_ref/
-        mv Homo_sapiens_assembly19.fasta.gz.fai hg_ref/
-
+      
     - name: Replace SPLICEAI_API_VERSION with Git Commit in spliceai_api/app.py
       run: |
-        GIT_COMMIT_HASH=$(git rev-parse HEAD)
+        GIT_COMMIT_HASH=$(git rev-parse HEAD | cut -c 1-7)
         sed -i "s/SPLICEAI_API_VERSION/${GIT_COMMIT_HASH}/g" spliceai_api/app.py
 
     - name: Login to Docker Hub

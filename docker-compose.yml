@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  spliceaiapi:
+    image: schnknc/spliceaiapi:main
+    container_name: spliceaiapi_container
+    volumes:
+      - type: bind
+        source: ./hg_ref
+        target: /hg_ref
+    environment:
+      GRCH37_FASTA: "/hg_ref/Homo_sapiens_assembly38.fasta"
+      GRCH38_FASTA: "/hg_ref/Homo_sapiens_assembly38.fasta"
+      ENSEMBL_TIMEOUT: "120"
+    ports:
+      - "5001:5001"
+    restart: unless-stopped
