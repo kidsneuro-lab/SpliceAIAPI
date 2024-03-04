@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  spliceaiapi:
+    container_name: spliceaiapi_container
+    build:
+      context: .
+    environment:
+      GRCH37_FASTA: "/app/hg_ref/Homo_sapiens_assembly19.fasta.gz"
+      GRCH38_FASTA: "/app/hg_ref/Homo_sapiens_assembly38.fasta.gz"
+      ENSEMBL_TIMEOUT: "120"
+    ports:
+      - "5001:5001"
+    restart: unless-stopped
+

@@ -27,23 +27,18 @@ jobs:
         wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta -O Homo_sapiens_assembly38.fasta
         wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta -O Homo_sapiens_assembly19.fasta
 
-    - name: Compress the hg19 and hg38 FASTA file with bgzip
-      run: |
-        bgzip -@ 4 Homo_sapiens_assembly38.fasta
-        bgzip -@ 4 Homo_sapiens_assembly19.fasta
-
     - name: Index the hg19 and hg38 FASTA file with samtools
       run: |
-        samtools faidx Homo_sapiens_assembly38.fasta.gz
-        samtools faidx Homo_sapiens_assembly19.fasta.gz
+        samtools faidx Homo_sapiens_assembly38.fasta
+        samtools faidx Homo_sapiens_assembly19.fasta
 
-    - name: Copy the hg19 and hg38 FASTA and its index to hg_ref folder
+    - name: Move the hg19 and hg38 FASTA and its index to hg_ref folder
       run: |
         mkdir -p hg_ref
-        cp Homo_sapiens_assembly38.fasta.gz hg_ref/
-        cp Homo_sapiens_assembly38.fasta.gz.fai hg_ref/
-        cp Homo_sapiens_assembly19.fasta.gz hg_ref/
-        cp Homo_sapiens_assembly19.fasta.gz.fai hg_ref/
+        mv -v Homo_sapiens_assembly38.fasta hg_ref/
+        mv -v Homo_sapiens_assembly38.fasta.fai hg_ref/
+        mv -v Homo_sapiens_assembly19.fasta hg_ref/
+        mv -v Homo_sapiens_assembly19.fasta.fai hg_ref/
 
     - name: Replace SPLICEAI_API_VERSION with Git Commit in spliceai_api/app.py
       run: |
