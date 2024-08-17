@@ -1,7 +1,7 @@
 #################################################################################
 # STAGE - BUILD
 #################################################################################
-FROM python:3.10-slim as build
+FROM python:3.12-slim as build
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -22,7 +22,7 @@ RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirem
 #################################################################################
 # STAGE - RUNTIME
 #################################################################################
-FROM python:3.10-slim AS runtime
+FROM python:3.12-slim AS runtime
 
 ENV PYTHONUNBUFFERED=1
 
