@@ -19,8 +19,8 @@ variants = [
 
 variants_for_spliceai = [
     ('valid', {'chr': '21', 'pos': 26840275, 'ref': 'C', 'alt': 'A'}, 'grch38', 50, 0, 200),
-    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38', 50, 0, 500),
-    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38_custom', 50, 0, 500),
+    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38', 50, 0, 400),
+    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38_custom', 50, 0, 400),
     ('invalid_assembly', {'chr': '21', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch22', 50, 0, 422)
 ]
 
@@ -28,7 +28,6 @@ def idfn(test_data):
     ids = [values[0] for values in test_data]
     return ids
 
-@pytest.mark.system_tests
 @pytest.mark.parametrize("id,input,response_code", data, ids=idfn(data))
 def test_score_custom_seq(id, input, response_code):
     response = client.get(f"/score_custom_seq/{input}")

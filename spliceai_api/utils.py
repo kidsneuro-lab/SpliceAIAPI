@@ -93,6 +93,9 @@ def get_delta_scores(record, ann, dist_var, mask):
     chrom = normalise_chrom(record.chrom, list(ann.ref_fasta.keys())[0])
     try:
         seq = ann.ref_fasta[chrom][record.pos-wid//2-1:record.pos+wid//2].seq
+    except KeyError as e:
+        logging.error(f"Encountered error: {str(e)}")
+        raise SpliceAIAPIException('Encountered error: {}'.format(str(e)))
     except (IndexError, ValueError):
         logging.warning('Skipping record (fasta issue): {}'.format(record))
         raise SpliceAIAPIException('Skipping record (fasta issue): {}'.format(record))
