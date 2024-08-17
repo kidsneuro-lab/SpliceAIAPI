@@ -19,8 +19,8 @@ variants = [
 
 variants_for_spliceai = [
     ('valid', {'chr': '21', 'pos': 26840275, 'ref': 'C', 'alt': 'A'}, 'grch38', 50, 0, 200),
-    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38', 50, 0, 500),
-    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38_custom', 50, 0, 500),
+    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38', 50, 0, 400),
+    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38_custom', 50, 0, 400),
     ('invalid_assembly', {'chr': '21', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch22', 50, 0, 422)
 ]
 
