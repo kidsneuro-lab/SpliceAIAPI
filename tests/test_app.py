@@ -28,7 +28,6 @@ def idfn(test_data):
     ids = [values[0] for values in test_data]
     return ids
 
-@pytest.mark.system_tests
 @pytest.mark.parametrize("id,input,response_code", data, ids=idfn(data))
 def test_score_custom_seq(id, input, response_code):
     response = client.get(f"/score_custom_seq/{input}")
