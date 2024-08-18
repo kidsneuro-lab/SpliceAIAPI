@@ -8,7 +8,7 @@ services:
         source: ./hg_ref
         target: /hg_ref
     environment:
-      GRCH37_FASTA: "/hg_ref/Homo_sapiens_assembly38.fasta"
+      GRCH37_FASTA: "/hg_ref/Homo_sapiens_assembly19.fasta"
       GRCH38_FASTA: "/hg_ref/Homo_sapiens_assembly38.fasta"
       ENSEMBL_TIMEOUT: "120"
     ports:

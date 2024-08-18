@@ -17,6 +17,7 @@ COPY . /app
 # STAGE - TESTS
 #################################################################################
 FROM build as tests
+
 RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirements-dev.txt
 
 #################################################################################

@@ -4,9 +4,11 @@ services:
   system-tests:
     image: system-tests
     container_name: system-tests
+    volumes:
+      - ./tests/data:/app/hg_ref
     environment:
-      - GRCH37_FASTA=hg_ref/Homo_sapiens_assembly19.fasta.gz
-      - GRCH38_FASTA=hg_ref/Homo_sapiens_assembly38.fasta.gz
+      - GRCH37_FASTA=/app/hg_ref/chr21_grch37.fa.gz
+      - GRCH38_FASTA=/app/hg_ref/chr21_grch38.fa.gz
     build:
       context: .
       target: tests
