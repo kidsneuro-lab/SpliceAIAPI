@@ -38,12 +38,12 @@ jobs:
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images:  ${{ vars.DOCKERHUB_USERNAME }}/spliceaiapi
+        images: ${{ vars.DOCKERHUB_USERNAME }}/spliceaiapi
         tags: |
           type=ref,event=branch
           type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{version}},version=${{ steps.tag_version.outputs.tag }}
+          type=semver,pattern={{major}}.{{minor}},version=${{ steps.tag_version.outputs.tag }}
           type=sha
 
     - name: Build and push
