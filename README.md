@@ -29,10 +29,13 @@ occupies a lot of space. However after compressing them (using `bgzip` and index
 1. Download Human genome reference files.
 
 ```sh
-wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta
-wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai
-wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta
-wget -qc https://storage.googleapis.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai
+wget -qc https://github.com/broadinstitute/gatk/raw/master/src/test/resources/large/Homo_sapiens_assembly19.fasta.gz
+wget -qc https://github.com/broadinstitute/gatk/raw/master/src/test/resources/large/Homo_sapiens_assembly19.fasta.gz.fai
+wget -qc https://github.com/broadinstitute/gatk/raw/master/src/test/resources/large/Homo_sapiens_assembly19.fasta.gz.gzi
+
+wget -qc https://github.com/broadinstitute/gatk/raw/master/src/test/resources/large/Homo_sapiens_assembly38.fasta.gz
+wget -qc https://github.com/broadinstitute/gatk/raw/master/src/test/resources/large/Homo_sapiens_assembly38.fasta.gz.fai
+wget -qc https://github.com/broadinstitute/gatk/raw/master/src/test/resources/large/Homo_sapiens_assembly38.fasta.gz.gzi
 ```
 
 2. Move these files to `hg_ref` folder.
