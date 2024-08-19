@@ -10,8 +10,11 @@ jobs:
   test-docker-build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        show-progress: 'false'
 
     - name: Install Tools
       run: |
