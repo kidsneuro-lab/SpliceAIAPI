@@ -14,8 +14,10 @@ jobs:
       name: dev
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        show-progress: 'false'
       
     - name: Replace SPLICEAI_API_VERSION with Git Commit in spliceai_api/app.py
       run: |
