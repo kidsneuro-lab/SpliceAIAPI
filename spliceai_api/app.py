@@ -23,8 +23,8 @@ logging_level = logging.DEBUG if os.getenv("DEBUG") == "true" else logging.INFO
 # Configure logging
 logging.basicConfig(level=logging_level, format="%(asctime)s %(name)-12s %(funcName)-12s %(levelname)-8s %(message)s")
 
-app = FastAPI(title="SpliceAI API",
-              version="SPLICEAI_API_VERSION")
+version = os.getenv("VERSION","UNKNOWN")
+app = FastAPI(title="SpliceAI API",version=version)
 
 if os.getenv("ALLOW_ALL_ORIGIN"):
     app.add_middleware(
