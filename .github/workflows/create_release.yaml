@@ -40,20 +40,20 @@ jobs:
 
     - name: Build and Push Docker Image
       env:
-        REGISTRY: docker.io
+        USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
         REPOSITORY: ${{ vars.DOCKERHUB_USERNAME }}
         TAG_SEMVER: ${{ steps.tag_version.outputs.tag }}
       run: |
         set -e
         set -x
         docker build -t $IMAGE_NAME .
-        docker tag $IMAGE_NAME $REGISTRY/$REPOSITORY:$TAG_LATEST
-        docker tag $IMAGE_NAME $REGISTRY/$REPOSITORY:$TAG_SEMVER
-        docker tag $IMAGE_NAME $REGISTRY/$REPOSITORY:$TAG_SHA
-        docker push $REGISTRY/$REPOSITORY:$TAG_LATEST
-        docker push $REGISTRY/$REPOSITORY:$TAG_SEMVER
-        docker push $REGISTRY/$REPOSITORY:$TAG_SHA
-        echo "::notice ::$REGISTRY/$REPOSITORY:$TAG_SEMVER"
+        docker tag $IMAGE_NAME $USERNAME/$REPOSITORY:$TAG_LATEST
+        docker tag $IMAGE_NAME $USERNAME/$REPOSITORY:$TAG_SEMVER
+        docker tag $IMAGE_NAME $USERNAME/$REPOSITORY:$TAG_SHA
+        docker push $USERNAME/$REPOSITORY:$TAG_LATEST
+        docker push $USERNAME/$REPOSITORY:$TAG_SEMVER
+        docker push $USERNAME/$REPOSITORY:$TAG_SHA
+        echo "::notice ::$USERNAME/$REPOSITORY:$TAG_SEMVER"
 
     - name: Create github release
       uses: ncipollo/release-action@v1
