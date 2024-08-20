@@ -13,11 +13,6 @@ jobs:
     environment:
       name: dev
 
-    env:
-      IMAGE_NAME: "api"
-      TAG_LATEST: latest
-      TAG_SHA: ${{ github.sha }}
-
     steps:
 
     - name: Checkout code
@@ -41,8 +36,11 @@ jobs:
     - name: Build and Push Docker Image
       env:
         USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
-        REPOSITORY: ${{ vars.DOCKERHUB_USERNAME }}
+        REPOSITORY: spliceaiapi
+        IMAGE_NAME: api
+        TAG_LATEST: latest
         TAG_SEMVER: ${{ steps.tag_version.outputs.tag }}
+        TAG_SHA: ${{ github.sha }}
       run: |
         set -e
         set -x
