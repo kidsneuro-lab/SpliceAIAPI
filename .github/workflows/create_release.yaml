@@ -40,15 +40,17 @@ jobs:
 
     - name: Build and Push Docker Image
       env:
-        VERSION: ${{ steps.tag_version.outputs.tag }}
         REGISTRY: docker.io
         REPOSITORY: ${{ vars.DOCKERHUB_USERNAME }}
+        TAG_SEMVER: ${{ steps.tag_version.outputs.tag }}
       run: |
         docker build -t $IMAGE_NAME .
         docker tag $IMAGE_NAME $REGISTRY/$REPOSITORY:$TAG_LATEST
         docker tag $IMAGE_NAME $REGISTRY/$REPOSITORY:$TAG_SEMVER
+        docker tag $IMAGE_NAME $REGISTRY/$REPOSITORY:$TAG_SHA
         docker push $REGISTRY/$REPOSITORY:$TAG_LATEST
         docker push $REGISTRY/$REPOSITORY:$TAG_SEMVER
+        docker push $REGISTRY/$REPOSITORY:$TAG_SHA
         echo "::notice ::$REGISTRY/$REPOSITORY:$TAG_SEMVER"
 
     - name: Create github release
