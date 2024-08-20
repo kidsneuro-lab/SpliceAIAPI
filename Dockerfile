@@ -1,7 +1,7 @@
 #################################################################################
 # STAGE - BUILD
 #################################################################################
-FROM python:3.12-slim as build
+FROM python:3.12-slim AS build
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -16,7 +16,7 @@ COPY . /app
 #################################################################################
 # STAGE - TESTS
 #################################################################################
-FROM build as tests
+FROM build AS tests
 
 RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirements-dev.txt
 

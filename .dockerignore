@@ -3,5 +3,4 @@ tests/data
 .pytest_cache
 .devcontainer
 .github
-hg_ref/chr21*.fa*
-hg_ref/tests
+hg_ref/*
