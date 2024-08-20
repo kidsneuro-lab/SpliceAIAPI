@@ -104,6 +104,20 @@ class BulkVarianstResponse(BaseModel):
     scores: list[DeltaScore] | None = Field(description="Delta scores for a variant. Null if there is any error")
     error: str | None = Field(description="Error message if an error is encountered, otherwise Null")
 
+@app.get("/")
+def get_root():
+    return {"App": "SpliceAI API"}
+
+@app.get("/health/alive")
+def get_alive():
+    """
+    Endpoint to check if the API is alive.
+
+    Returns:
+        dict: A dictionary with the status 'alive' to indicate the API is running.
+    """
+    return {"status": "alive"}
+
 @app.get("/health/alive")
 def get_alive():
     """
