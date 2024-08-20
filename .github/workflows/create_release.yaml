@@ -44,6 +44,8 @@ jobs:
         REPOSITORY: ${{ vars.DOCKERHUB_USERNAME }}
         TAG_SEMVER: ${{ steps.tag_version.outputs.tag }}
       run: |
+        set -e
+        set -x
         docker build -t $IMAGE_NAME .
         docker tag $IMAGE_NAME $REGISTRY/$REPOSITORY:$TAG_LATEST
         docker tag $IMAGE_NAME $REGISTRY/$REPOSITORY:$TAG_SEMVER
