@@ -17,7 +17,7 @@
             "env": {
                 "GRCH37_FASTA": "${workspaceFolder}/tests/data/chr21_grch37.fa.gz",
                 "GRCH38_FASTA": "${workspaceFolder}/tests/data/chr21_grch38.fa.gz",
-                "ENSEMBL_TIMEOUT": "60",
+                "ENSEMBL_TIMEOUT": "120",
                 "ALLOW_ALL_ORIGIN": "true",
                 "DEBUG": "true"
             }
