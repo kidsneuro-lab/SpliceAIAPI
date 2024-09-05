@@ -18,7 +18,6 @@ Note:
 ```
 GRCH37_FASTA=/hg_ref/Homo_sapiens_assembly19.fasta.gz
 GRCH38_FASTA=/hg_ref/Homo_sapiens_assembly38.fasta.gz
-ENSEMBL_TIMEOUT=120 # Timeout in seconds for Ensembl REST API services (seconds)
 ```
 
 ## Running

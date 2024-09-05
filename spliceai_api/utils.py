@@ -4,7 +4,6 @@ import logging, os
 from importlib.resources import files
 
 from spliceai_api.exceptions import SpliceAIAPIException
-from spliceai_api import ENSEMBL_TIMEOUT
 
 import requests
 from keras.models import load_model
@@ -50,27 +49,6 @@ def score_custom_sequence(sequence: str) -> dict:
         'acceptor_prob': y[0, :, 1].tolist(),
         'donor_prob': y[0, :, 2].tolist()
     }
-
-def ensembl_get_genomic_coord(variant: str, assembly: str = 'grch38') -> dict:
-    logger.debug(f"Obtaining genomic position for variant: {variant}, assembly: {assembly}")
-    server = 'https://grch37.rest.ensembl.org' if assembly=='grch37' else 'https://rest.ensembl.org'
-    ext = f"/variant_recoder/human/{variant}?fields=None&vcf_string=1"
-    logger.debug(f"Ensembl URL: {server}{ext}")
-
-    resp = requests.get(server+ext, headers={ "Content-Type" : "application/json"}, timeout=float(ENSEMBL_TIMEOUT))
-    if not resp.ok:
-        resp.raise_for_status()
-
-    resp_json = resp.json()
-
-    chrom, pos, ref, alt = resp_json[0][list(resp_json[0].keys())[0]]['vcf_string'][0].split('-')
-
-    return({
-        'chr': chrom,
-        'pos': pos,
-        'ref': ref,
-        'alt': alt
-    })
 
 def get_delta_scores(record, ann, dist_var, mask):
 
