@@ -138,16 +138,6 @@ def get_ready():
     """
     return {"status": "ready"}
 
-@app.get("/get_annotations")
-async def api_get_annotations():
-    """
-    API endpoint to get available annotations.
-
-    Returns:
-        dict: A dictionary of annotations available in the API.
-    """
-    return annotations
-
 @app.get("/score_custom_seq/{sequence}")
 async def api_score_custom_seq(sequence: str):
     """
