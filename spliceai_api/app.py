@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 
 from spliceai.utils import Annotator
 from spliceai_api.exceptions import SpliceAIAPIException
-from spliceai_api.utils import score_custom_sequence, ensembl_get_genomic_coord, get_delta_scores, Record, validate_fasta, load_annotations
+from spliceai_api.utils import score_custom_sequence, get_delta_scores, Record, validate_fasta, load_annotations
 
 # Determine the logging level based on an environment variable
 logging_level = logging.DEBUG if os.getenv("DEBUG") == "true" else logging.INFO
@@ -138,16 +138,6 @@ def get_ready():
     """
     return {"status": "ready"}
 
-@app.get("/get_annotations")
-async def api_get_annotations():
-    """
-    API endpoint to get available annotations.
-
-    Returns:
-        dict: A dictionary of annotations available in the API.
-    """
-    return annotations
-
 @app.get("/score_custom_seq/{sequence}")
 async def api_score_custom_seq(sequence: str):
     """
@@ -168,34 +158,6 @@ async def api_score_custom_seq(sequence: str):
              'details':f"Entered sequence must contain ATCG and not be blank"}))
     return score_custom_sequence(sequence=sequence)
 
-
-@app.get("/get_genomic_coord/{assembly}/{variant}")
-async def api_get_genomic_coord(variant: str, assembly: str = 'grch38') -> dict:
-    """Obtain genomic coordinates for a given variant
-
-    Args:
-        variant (str): Variant. This can be HGVSc, HGVSg
-        assembly (str): 'grch38' or 'grch37'
-
-    Returns:
-        dict: Genomic coordinates consisting of 'chr', 'pos', 'ref' and 'alt'
-    """
-    if assembly not in annotations.keys():
-        raise DefaultException(status_code=400, detail=jsonable_encoder(
-            {'summary':'Invalid assembly',
-             'details':f"{assembly} is not a valid assembly"}))
-
-    try:
-        gcoord = ensembl_get_genomic_coord(variant=variant, assembly=annotations[assembly]['assembly'])
-        return(gcoord)
-    except HTTPError as e:
-        raise HTTPException(status_code=e.response.status_code, detail=jsonable_encoder(
-            {'summary':'Encountered error while translating variant',
-             'details': e.response.json()['error']}))
-    except Exception as e:
-        raise DefaultException(status_code=500, detail=jsonable_encoder(
-            {'summary':'Encountered error while translating variant',
-             'details':e.__doc__}))
         
 @app.post("/get_delta_scores/")
 async def api_get_delta_scores(variant: SingleVariant) -> list[DeltaScore]:
