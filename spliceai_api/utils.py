@@ -6,11 +6,15 @@ from importlib.resources import files
 from spliceai_api.exceptions import SpliceAIAPIException
 from spliceai_api import ENSEMBL_TIMEOUT
 
+from pyfaidx import Fasta
 import requests
 from keras.models import load_model
 from pkg_resources import resource_filename
 from spliceai.utils import one_hot_encode, normalise_chrom
 import numpy as np
+import pandas as pd
+
+from spliceai_api import MODELS
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +24,60 @@ class Record:
     pos: int = None
     ref: str = None
     alts: list = None
+
+class Annotator:
+
+    def __init__(self, ref_fasta, annotations):
+
+        if annotations == 'grch37':
+            annotations = resource_filename(__name__, 'annotations/grch37.txt')
+        elif annotations == 'grch38':
+            annotations = resource_filename(__name__, 'annotations/grch38.txt')
+
+        try:
+            df = pd.read_csv(annotations, sep='\t', dtype={'CHROM': object})
+            self.genes = df['#NAME'].to_numpy()
+            self.chroms = df['CHROM'].to_numpy()
+            self.strands = df['STRAND'].to_numpy()
+            self.tx_starts = df['TX_START'].to_numpy()+1
+            self.tx_ends = df['TX_END'].to_numpy()
+            self.exon_starts = [np.asarray([int(i) for i in c.split(',') if i])+1
+                                for c in df['EXON_START'].to_numpy()]
+            self.exon_ends = [np.asarray([int(i) for i in c.split(',') if i])
+                              for c in df['EXON_END'].to_numpy()]
+        except IOError as e:
+            logging.error('{}'.format(e))
+            exit()
+        except (KeyError, pd.errors.ParserError) as e:
+            logging.error('Gene annotation file {} not formatted properly: {}'.format(annotations, e))
+            exit()
+
+        try:
+            self.ref_fasta = Fasta(ref_fasta, rebuild=False)
+        except IOError as e:
+            logging.error('{}'.format(e))
+            exit()
+
+    def get_name_and_strand(self, chrom, pos):
+
+        chrom = normalise_chrom(chrom, list(self.chroms)[0])
+        idxs = np.intersect1d(np.nonzero(self.chroms == chrom)[0],
+                              np.intersect1d(np.nonzero(self.tx_starts <= pos)[0],
+                              np.nonzero(pos <= self.tx_ends)[0]))
+
+        if len(idxs) >= 1:
+            return self.genes[idxs], self.strands[idxs], idxs
+        else:
+            return [], [], []
+
+    def get_pos_data(self, idx, pos):
+
+        dist_tx_start = self.tx_starts[idx]-pos
+        dist_tx_end = self.tx_ends[idx]-pos
+        dist_exon_bdry = min(np.union1d(self.exon_starts[idx], self.exon_ends[idx])-pos, key=abs)
+        dist_ann = (dist_tx_start, dist_tx_end, dist_exon_bdry)
+
+        return dist_ann
 
 def load_annotations() -> dict:
     logger.debug("Loading annotations")
@@ -38,11 +96,9 @@ def validate_fasta(assemblies: list):
         elif not os.path.exists(os.getenv(assembly)):
             raise SpliceAIAPIException("Genomic reference not found", f"FASTA file for {assembly}: {os.getenv(assembly)} not found")
  
-def score_custom_sequence(sequence: str) -> dict:
+def score_custom_sequence(sequence: str, models: list) -> dict:
     logger.debug(f"Scoring sequence: {sequence}")
     context = 10000
-    paths = ('models/spliceai{}.h5'.format(x) for x in range(1, 6))
-    models = [load_model(resource_filename('spliceai', x)) for x in paths]
     x = one_hot_encode('N'*(context//2) + sequence + 'N'*(context//2))[None, :]
     y = np.mean([models[m].predict(x) for m in range(5)], axis=0)
 
@@ -72,7 +128,7 @@ def ensembl_get_genomic_coord(variant: str, assembly: str = 'grch38') -> dict:
         'alt': alt
     })
 
-def get_delta_scores(record, ann, dist_var, mask):
+def get_delta_scores(record, ann, dist_var, mask, models):
 
     cov = 2*dist_var+1
     wid = 10000+cov
@@ -143,8 +199,8 @@ def get_delta_scores(record, ann, dist_var, mask):
                 x_ref = x_ref[:, ::-1, ::-1]
                 x_alt = x_alt[:, ::-1, ::-1]
 
-            y_ref = np.mean([ann.models[m].predict(x_ref) for m in range(5)], axis=0)
-            y_alt = np.mean([ann.models[m].predict(x_alt) for m in range(5)], axis=0)
+            y_ref = np.mean([models[m].predict(x_ref) for m in range(5)], axis=0)
+            y_alt = np.mean([models[m].predict(x_alt) for m in range(5)], axis=0)
 
             if strands[i] == '-':
                 y_ref = y_ref[:, ::-1]
