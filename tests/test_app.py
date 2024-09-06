@@ -12,14 +12,14 @@ data = [
 ]
 
 variants = [
-    ('valid_hgvsc', 'NM_005502:c.66+5G>C', 'grch38', 200, {'chr': '9', 'pos': '104903609', 'ref': 'C', 'alt': 'G'}),
-    ('invalid_hgvsc', 'NM_005502:c.+5G>C', 'grch38', 400, None),
+    ('valid_hgvsc', 'NM_005502:c.66+5G>C', 'grch38_custom', 200, {'chr': '9', 'pos': '104903609', 'ref': 'C', 'alt': 'G'}),
+    ('invalid_hgvsc', 'NM_005502:c.+5G>C', 'grch38_custom', 400, None),
     ('invalid_assembly', 'NM_005502.3:c.+5G>C', 'grch99', 400, None)
 ]
 
 variants_for_spliceai = [
-    ('valid', {'chr': '21', 'pos': 26840275, 'ref': 'C', 'alt': 'A'}, 'grch38', 50, 0, 200),
-    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38', 50, 0, 400),
+    ('valid', {'chr': '21', 'pos': 26840275, 'ref': 'C', 'alt': 'A'}, 'grch38_custom', 50, 0, 200),
+    ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38_custom', 50, 0, 400),
     ('invalid_chromosome', {'chr': '1', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch38_custom', 50, 0, 400),
     ('invalid_assembly', {'chr': '21', 'pos': 26840275, 'ref': 'G', 'alt': 'A'}, 'grch22', 50, 0, 422)
 ]

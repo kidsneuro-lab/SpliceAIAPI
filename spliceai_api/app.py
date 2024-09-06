@@ -13,9 +13,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from requests import HTTPError
 from pydantic import BaseModel, Field
 
-from spliceai.utils import Annotator
 from spliceai_api.exceptions import SpliceAIAPIException
-from spliceai_api.utils import score_custom_sequence, ensembl_get_genomic_coord, get_delta_scores, Record, validate_fasta, load_annotations
+from spliceai_api.utils import score_custom_sequence, ensembl_get_genomic_coord, get_delta_scores, Record, validate_fasta, load_annotations, Annotator
+from spliceai_api import MODELS
 
 # Determine the logging level based on an environment variable
 logging_level = logging.DEBUG if os.getenv("DEBUG") == "true" else logging.INFO
@@ -166,7 +166,7 @@ async def api_score_custom_seq(sequence: str):
         raise DefaultException(status_code=400, detail=jsonable_encoder(
             {'summary':'DNA string must contain ATCG',
              'details':f"Entered sequence must contain ATCG and not be blank"}))
-    return score_custom_sequence(sequence=sequence)
+    return score_custom_sequence(sequence=sequence, models=MODELS)
 
 
 @app.get("/get_genomic_coord/{assembly}/{variant}")
@@ -224,7 +224,7 @@ async def api_get_delta_scores(variant: SingleVariant) -> list[DeltaScore]:
 
     try:
         ann = Annotator(os.getenv(annotations[variant.annotation]['fasta']), annotation_file)
-        return get_delta_scores(record, ann, variant.distance, variant.mask)
+        return get_delta_scores(record, ann, variant.distance, variant.mask, models=MODELS)
     except SpliceAIAPIException as e:
         raise DefaultException(status_code=400, detail=jsonable_encoder(
             {'summary':e.summary,
@@ -263,7 +263,7 @@ async def api_get_bulk_delta_scores(variants: BulkVariantList) -> list[BulkVaria
             ann = Annotator(os.getenv(annotations[variants.annotation]['fasta']), annotation_file)
 
             input = f"{variant.chrom}-{variant.pos}-{variant.ref}-{variant.alt}"   
-            scores = get_delta_scores(record, ann, variants.distance, variants.mask)
+            scores = get_delta_scores(record, ann, variants.distance, variants.mask, models=MODELS)
             error = None
         
         except Exception as e:
