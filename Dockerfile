@@ -32,4 +32,4 @@ WORKDIR /app
 COPY --from=build /app /app
 COPY --from=build /usr/local /usr/local
 
-CMD ["uvicorn", "spliceai_api.app:app", "--host", "0.0.0.0", "--port", "$PORT", "--root-path", "/spliceai/api/v1"]
+CMD ["sh", "-c", "uvicorn spliceai_api.app:app --host 0.0.0.0 --port $PORT --root-path /spliceai/api/v1"]
