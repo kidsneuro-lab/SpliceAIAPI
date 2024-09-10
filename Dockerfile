@@ -26,9 +26,10 @@ RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirem
 FROM python:3.12-slim AS runtime
 
 ENV PYTHONUNBUFFERED=1
+ENV PORT=5001
 
 WORKDIR /app
 COPY --from=build /app /app
 COPY --from=build /usr/local /usr/local
 
-CMD ["uvicorn", "spliceai_api.app:app", "--host", "0.0.0.0", "--port", "5001", "--root-path", "/spliceai/api/v1"]
+CMD ["uvicorn", "spliceai_api.app:app", "--host", "0.0.0.0", "--port", "{PORT}", "--root-path", "/spliceai/api/v1"]
