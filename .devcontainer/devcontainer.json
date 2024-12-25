@@ -4,6 +4,9 @@
 	"forwardPorts": [
 		5001
 	],
+	"features": {
+    	"ghcr.io/devcontainers/features/git-lfs:1": {}
+	},
 	"postCreateCommand": "pip3 install --user -r requirements.txt; pip3 install --user -r requirements-dev.txt",
 	"containerEnv": {
 		"GRCH37_FASTA": "./hg_ref/Homo_sapiens_assembly19.fasta.gz",

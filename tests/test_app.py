@@ -7,8 +7,9 @@ from spliceai_api.app import app
 client = TestClient(app)
 
 data = [
-    ('valid_sequence', 'ATCG', 200),
-    ('invalid_sequence', 'XYAX', 400)
+    ('valid_sequence', {'seq':'ATACATACATACATACATACATACATACATACATACATACATACATACATACATACATACATAC'}, 200),
+    ('invalid_sequence', {'seq':'XYAX'}, 422),
+    ('invalid_sequence', {'seq':'XYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAXXYAX'}, 400)
 ]
 
 variants = [
@@ -30,7 +31,7 @@ def idfn(test_data):
 
 @pytest.mark.parametrize("id,input,response_code", data, ids=idfn(data))
 def test_score_custom_seq(id, input, response_code):
-    response = client.get(f"/score_custom_seq/{input}")
+    response = client.post(f"/score_custom_seq/", json=input)
     assert response.status_code == response_code
 
 @pytest.mark.parametrize("id,input,assembly,response_code,genomic", variants, ids=idfn(variants))
