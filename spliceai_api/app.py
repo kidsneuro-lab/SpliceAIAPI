@@ -104,6 +104,12 @@ class BulkVarianstResponse(BaseModel):
     scores: list[DeltaScore] | None = Field(description="Delta scores for a variant. Null if there is any error")
     error: str | None = Field(description="Error message if an error is encountered, otherwise Null")
 
+class CustomSequence(BaseModel):
+    # Length constraints based on protein coding gene sizes obtained from Ensembl
+    # 30 is less than the smallest gene ENSG00000289325 (length = 39)
+    # 2500000 is larger than the largest gene ENSG00000078328 (length = 2473539)
+    seq: str = Field(description="Custom sequence", min_length=30, max_length=2500000)
+
 @app.get("/")
 def get_root():
     return {"App": "SpliceAI API"}
@@ -148,8 +154,8 @@ async def api_get_annotations():
     """
     return annotations
 
-@app.get("/score_custom_seq/{sequence}")
-async def api_score_custom_seq(sequence: str):
+@app.post("/score_custom_seq/")
+async def api_score_custom_seq(custom_sequence: CustomSequence):
     """
     API endpoint to score a custom DNA sequence.
 
@@ -162,11 +168,11 @@ async def api_score_custom_seq(sequence: str):
     - On success, returns an array
     - On failure (if the sequence contains invalid characters or is blank), raises a DefaultException with status code 400 and a detailed error message.
     """
-    if not dna_pattern.match(sequence):
+    if not dna_pattern.match(custom_sequence.seq):
         raise DefaultException(status_code=400, detail=jsonable_encoder(
             {'summary':'DNA string must contain ATCG',
              'details':f"Entered sequence must contain ATCG and not be blank"}))
-    return score_custom_sequence(sequence=sequence, models=MODELS)
+    return score_custom_sequence(custom_sequence.seq, models=MODELS)
 
 
 @app.get("/get_genomic_coord/{assembly}/{variant}")
