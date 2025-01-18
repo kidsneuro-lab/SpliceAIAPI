@@ -1,4 +1,4 @@
-name: create_release
+name: Create Release for AMD64 + ARM64
 
 on:
   workflow_dispatch:
@@ -7,54 +7,120 @@ on:
       - main
 
 jobs:
-  create_release:
+  # 1) Generate a single version from the "anothrNick/github-tag-action"
+  get-version:
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag_version.outputs.tag }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Generate version number
+        id: tag_version
+        uses: anothrNick/github-tag-action@1.70.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+
+  # 2) Build & push per-architecture images (two parallel jobs in a matrix).
+  build-and-push:
+    needs: get-version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04-arm]
+        include:
+          - os: ubuntu-latest
+            arch: amd64
+          - os: ubuntu-22.04-arm
+            arch: arm64
 
     environment:
       name: dev
 
     steps:
-
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        show-progress: 'false'
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          show-progress: 'false'
       
-    - name: Generate version number
-      id: tag_version
-      uses: anothrNick/github-tag-action@1.70.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        DEFAULT_BUMP: patch
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ vars.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        # Not using QEMU, because each runner is native to its arch.
 
-    - name: Build and Push Docker Image
-      env:
-        USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
-        REPOSITORY: spliceaiapi
-        IMAGE_NAME: api
-        TAG_LATEST: latest
-        TAG_SEMVER: ${{ steps.tag_version.outputs.tag }}
-        TAG_SHA: ${{ github.sha }}
-      run: |
-        set -e
-        set -x
-        docker build -t $IMAGE_NAME .
-        docker tag $IMAGE_NAME $USERNAME/$REPOSITORY:$TAG_LATEST
-        docker tag $IMAGE_NAME $USERNAME/$REPOSITORY:$TAG_SEMVER
-        docker tag $IMAGE_NAME $USERNAME/$REPOSITORY:$TAG_SHA
-        docker push $USERNAME/$REPOSITORY:$TAG_LATEST
-        docker push $USERNAME/$REPOSITORY:$TAG_SEMVER
-        docker push $USERNAME/$REPOSITORY:$TAG_SHA
-        echo "::notice ::$USERNAME/$REPOSITORY:$TAG_SEMVER"
+      - name: Build & push arch-specific image
+        env:
+          USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          REPOSITORY: spliceaiapi
+          IMAGE_NAME: api
+          TAG_LATEST: latest
+          TAG_SEMVER: ${{ needs.get-version.outputs.tag }}
+          TAG_SHA: ${{ github.sha }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -eux
+          # Build & push using the architecture of this runner only
+          docker buildx build \
+            --platform=linux/$ARCH \
+            -t $USERNAME/$REPOSITORY:$ARCH-$TAG_LATEST \
+            -t $USERNAME/$REPOSITORY:$ARCH-$TAG_SEMVER \
+            -t $USERNAME/$REPOSITORY:$ARCH-$TAG_SHA \
+            --push .
 
-    - name: Create github release
-      uses: ncipollo/release-action@v1
-      with:
-        tag: ${{ steps.tag_version.outputs.tag }}
-        generateReleaseNotes: true
+  # 3) Merge the arch-specific images into a multi-arch manifest
+  create-manifest:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create & push multi-arch manifests
+        env:
+          USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          REPOSITORY: spliceaiapi
+          TAG_LATEST: latest
+          TAG_SEMVER: ${{ needs.get-version.outputs.tag }}
+          TAG_SHA: ${{ github.sha }}
+        run: |
+          set -eux
+
+          # 1) "latest"
+          docker manifest create $USERNAME/$REPOSITORY:$TAG_LATEST \
+            --amend $USERNAME/$REPOSITORY:amd64-$TAG_LATEST \
+            --amend $USERNAME/$REPOSITORY:arm64-$TAG_LATEST
+          docker manifest push $USERNAME/$REPOSITORY:$TAG_LATEST
+
+          # 2) semantic version
+          docker manifest create $USERNAME/$REPOSITORY:$TAG_SEMVER \
+            --amend $USERNAME/$REPOSITORY:amd64-$TAG_SEMVER \
+            --amend $USERNAME/$REPOSITORY:arm64-$TAG_SEMVER
+          docker manifest push $USERNAME/$REPOSITORY:$TAG_SEMVER
+
+          # 3) git SHA
+          docker manifest create $USERNAME/$REPOSITORY:$TAG_SHA \
+            --amend $USERNAME/$REPOSITORY:amd64-$TAG_SHA \
+            --amend $USERNAME/$REPOSITORY:arm64-$TAG_SHA
+          docker manifest push $USERNAME/$REPOSITORY:$TAG_SHA
+
+  # 4) Create a GitHub release after pushing images
+  create-release:
+    needs: create-manifest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ needs.get-version.outputs.tag }}
+          generateReleaseNotes: true

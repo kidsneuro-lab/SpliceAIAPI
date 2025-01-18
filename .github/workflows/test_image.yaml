@@ -1,29 +1,53 @@
-name: Test Docker build
+name: Test Docker build for AMD64 + ARM64
 
 on:
-  workflow_dispatch:
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
 
 jobs:
-  test-docker-build:
-    runs-on: ubuntu-latest
+  build-and-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04-arm]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-      
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        show-progress: 'false'
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Install Tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y curl
+      - name: Print runner architecture info
+        run: |
+          echo "Running on: ${{ runner.os }} (architecture: ${{ runner.arch }})"
 
-    - name: Copy test FASTA files (chr21) to hg_ref folder for testing
-      run: |
-        ./copy_small_fasta.sh
-        
-    - name: Run Tests
-      run: ./run-system-tests.sh
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Copy test FASTA files
+        run: ./copy_small_fasta.sh
+
+      - name: Determine Docker platform
+        id: arch
+        run: |
+          if [ "${{ runner.arch }}" = "X64" ]; then
+            echo "ARCH=amd64" >> $GITHUB_OUTPUT
+          elif [ "${{ runner.arch }}" = "ARM64" ]; then
+            echo "ARCH=arm64" >> $GITHUB_OUTPUT
+          else
+            # Fallback if there's another arch
+            echo "ARCH=amd64" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Docker image
+        run: |
+          docker buildx build \
+            --platform linux/${{ steps.arch.outputs.ARCH }} \
+            --target tests \
+            -t system-tests:${{ steps.arch.outputs.ARCH }} \
+            --load \
+            .
+
+      - name: Run system tests
+        run: ./run-system-tests.sh
