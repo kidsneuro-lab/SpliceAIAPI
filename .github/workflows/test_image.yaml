@@ -1,4 +1,4 @@
-name: CI (No QEMU, Native AMD64 + ARM64)
+name: Test Docker build for AMD64 + ARM64
 
 on:
   pull_request:
