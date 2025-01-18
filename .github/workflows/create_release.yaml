@@ -70,53 +70,14 @@ jobs:
           # Build & push using the architecture of this runner only
           docker buildx build \
             --platform=linux/$ARCH \
-            -t $USERNAME/$REPOSITORY:$ARCH-$TAG_LATEST \
-            -t $USERNAME/$REPOSITORY:$ARCH-$TAG_SEMVER \
-            -t $USERNAME/$REPOSITORY:$ARCH-$TAG_SHA \
+            -t $USERNAME/$REPOSITORY:$TAG_LATEST \
+            -t $USERNAME/$REPOSITORY:$TAG_SEMVER \
+            -t $USERNAME/$REPOSITORY:$TAG_SHA \
             --push .
 
-  # 3) Merge the arch-specific images into a multi-arch manifest
-  create-manifest:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Create & push multi-arch manifests
-        env:
-          USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
-          REPOSITORY: spliceaiapi
-          TAG_LATEST: latest
-          TAG_SEMVER: ${{ needs.get-version.outputs.tag }}
-          TAG_SHA: ${{ github.sha }}
-        run: |
-          set -eux
-
-          # 1) "latest"
-          docker manifest create $USERNAME/$REPOSITORY:$TAG_LATEST \
-            --amend $USERNAME/$REPOSITORY:amd64-$TAG_LATEST \
-            --amend $USERNAME/$REPOSITORY:arm64-$TAG_LATEST
-          docker manifest push $USERNAME/$REPOSITORY:$TAG_LATEST
-
-          # 2) semantic version
-          docker manifest create $USERNAME/$REPOSITORY:$TAG_SEMVER \
-            --amend $USERNAME/$REPOSITORY:amd64-$TAG_SEMVER \
-            --amend $USERNAME/$REPOSITORY:arm64-$TAG_SEMVER
-          docker manifest push $USERNAME/$REPOSITORY:$TAG_SEMVER
-
-          # 3) git SHA
-          docker manifest create $USERNAME/$REPOSITORY:$TAG_SHA \
-            --amend $USERNAME/$REPOSITORY:amd64-$TAG_SHA \
-            --amend $USERNAME/$REPOSITORY:arm64-$TAG_SHA
-          docker manifest push $USERNAME/$REPOSITORY:$TAG_SHA
-
-  # 4) Create a GitHub release after pushing images
+  # 3) Create a GitHub release after pushing images
   create-release:
-    needs: create-manifest
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub release
