@@ -1,18 +1,18 @@
 version: '3.8'
 services:
   spliceaiapi:
-    image: schnknc/spliceaiapi:main
+    image: schnknc/spliceaiapi:latest
     container_name: spliceaiapi_container
     volumes:
       - type: bind
-        source: ./hg_ref
+        source: ~/Projects/genome_references
         target: /hg_ref
     environment:
-      GRCH37_FASTA: "/hg_ref/Homo_sapiens_assembly38.fasta"
-      GRCH38_FASTA: "/hg_ref/Homo_sapiens_assembly38.fasta"
+      GRCH37_FASTA: "/hg_ref/b37/human_g1k_v37.fasta"
+      GRCH38_FASTA: "/hg_ref/hg_ref/Homo_sapiens_assembly38.fasta"
       ENSEMBL_TIMEOUT: "120"
     ports:
-      - "5001:5001"
+      - "5001"
     restart: unless-stopped
 
   nginx:

@@ -22,20 +22,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
+      
+      - name: Output version number
+        run: echo "Tag is ${{ steps.tag_version.outputs.tag }}"
 
   # 2) Build & push per-architecture images (two parallel jobs in a matrix).
   build-and-push:
     needs: get-version
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, ubuntu-22.04-arm]
-        include:
-          - os: ubuntu-latest
-            arch: amd64
-          - os: ubuntu-22.04-arm
-            arch: arm64
+    runs-on: ubuntu-latest
 
     environment:
       name: dev
@@ -54,30 +48,29 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        # Not using QEMU, because each runner is native to its arch.
 
-      - name: Build & push arch-specific image
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Build and push
         env:
           USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
           REPOSITORY: spliceaiapi
-          IMAGE_NAME: api
           TAG_LATEST: latest
           TAG_SEMVER: ${{ needs.get-version.outputs.tag }}
           TAG_SHA: ${{ github.sha }}
-          ARCH: ${{ matrix.arch }}
-        run: |
-          set -eux
-          # Build & push using the architecture of this runner only
-          docker buildx build \
-            --platform=linux/$ARCH \
-            -t $USERNAME/$REPOSITORY:$TAG_LATEST \
-            -t $USERNAME/$REPOSITORY:$TAG_SEMVER \
-            -t $USERNAME/$REPOSITORY:$TAG_SHA \
-            --push .
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          # Use the env.* syntax for each environment variable.
+          tags: ${{ env.USERNAME }}/${{ env.REPOSITORY }}:${{ env.TAG_LATEST }},
+                ${{ env.USERNAME }}/${{ env.REPOSITORY }}:${{ env.TAG_SEMVER }},
+                ${{ env.USERNAME }}/${{ env.REPOSITORY }}:${{ env.TAG_SHA }}
 
   # 3) Create a GitHub release after pushing images
   create-release:
-    needs: build-and-push
+    needs: [get-version, build-and-push]
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub release
